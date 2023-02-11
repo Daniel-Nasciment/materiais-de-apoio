@@ -1,5 +1,9 @@
 # DOCKER
 
+Link: para documentaçao dockerfile:
+>https://docs.docker.com/engine/reference/builder/
+
+
 # Containers
 
 ## Por que containers sao mais leves ?
@@ -86,6 +90,9 @@ Para inspesionar detalhes da imagem
 
 Ver camadas da imagem
 > docker history id_imagem
+
+Fazer build de uma imagem a partir do dockerfile
+> docker build -t nome_imagem .
 
 # Docker hub 
 
