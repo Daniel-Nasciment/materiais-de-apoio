@@ -94,6 +94,11 @@ Ver camadas da imagem
 Fazer build de uma imagem a partir do dockerfile
 > docker build -t nome_imagem .
 
+Parar varios containers de uma vez
+> docker stop $(docker container ls -q)
+OBS: *-q* pega somente os id's
+
+
 # Docker hub 
 
 Lá podemos encontrar algumas imagens docker
@@ -125,6 +130,14 @@ Um conjunto de camadas.
 Caso o host tenha as camadas, o docker consegue reutilizar para compor a tal imagem, de forma que nao tenha conteúdo/camadas duplicadas
 
 No momento que uma imagem é criada, ela é ***IMUTAVÉL***
+
+Váriaveis de ambiente
+
+## ARG
+> Vai ser criado no momento de build da imagem
+
+## ENV
+> Vai ser utilizado dentro do container
 
 
 
