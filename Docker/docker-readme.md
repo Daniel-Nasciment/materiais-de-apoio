@@ -98,6 +98,21 @@ Parar varios containers de uma vez
 > docker stop $(docker container ls -q)
 OBS: *-q* pega somente os id's
 
+Remover todas imagens de uma vez
+> docker rmi image $(docker images -q)
+
+Ver o size do container
+> docker ps -s
+
+OBS: Tamanho virtual vai ser o tamanho da imagem original que  compõe o container
+
+Listagem dos volumes docker
+
+> docker volume ls
+
+Criar volume
+
+> docker volume create nome_volume
 
 # Docker hub 
 
@@ -138,6 +153,21 @@ Váriaveis de ambiente
 
 ## ENV
 > Vai ser utilizado dentro do container
+
+
+# BIND MOUNTS
+
+Basicamente é um ponto de montagem, onde podemos definir um caminho no nosso host onde sera salvo arquivos em determinado caminho dentro do container.
+
+Comando de exemplo:
+
+> docker run -it -v caminho_host:caminho_container ubuntu bash
+
+Comando mais semantico:
+
+> docker run -it --mount type=bind,source=C:/docker-volume,target=/app ubuntu bash
+
+TMPFS está disponível somente no sistema linux
 
 
 
