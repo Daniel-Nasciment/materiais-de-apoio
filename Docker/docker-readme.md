@@ -170,4 +170,59 @@ Comando mais semantico:
 TMPFS está disponível somente no sistema linux
 
 
+# REDES
+
+Podemos comunicar entre containers na mesma rede.
+
+Comando para listar as redes
+> docker network ls
+
+
+Para comunicar containers pelo host name é necessário criar nossa propria rede com o seguinte comando:
+
+> docker network create --driver bridge nome-rede
+
+E para definir a rede e hostname no momento de criaçao do container, usamos o seguinte comando:
+
+> docker run -it --name nome-container --network nome-rede ubunto bash
+
+## BRIDGE
+
+A rede bridge criada pelo usuário, prove uma comunicação automatica via DNS
+
+## NONE
+
+A grosso modo, quando criamos um container com a network *none*, estamos dizendo que o container nao tera nenhum driver de rede vinculado a ele. Ele fica completamente isolado.
+
+## HOST
+
+Com esse netowork *host* tiramos qualquer isolamento de rede, por exemplo, um container que executa uma aplicaçao na porta 8080, significa que atravez do meu host na porta 8080 eu consigo acessar o container, sem qualquer isolamento de rede.
+
+#
+
+# DOCKER COMPOSE
+
+O docker compose é uma ferramenta de coordenaçao de containers.
+
+comando para executar:
+
+OBS: É necessário estar no diretório do docker-compose.yaml
+
+> docker-compose up
+
+Ver serviços que foram criados pelo docker compose
+
+> docker-compose ps
+
+Derrubar os serviços do docker-compose
+
+> docker-compose down
+
+
+### DEPENDS_ON
+
+Podemos definir dependencia de um serviço para outro, dessa forma definimos a order dos containers a serem executados.
+Isso nao significa que, o docker vai esperar a aplicaçao dentro do container estar pronta, mas sim, o container estar up.
+
+
 
