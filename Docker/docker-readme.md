@@ -186,6 +186,9 @@ E para definir a rede e hostname no momento de criaçao do container, usamos o s
 
 > docker run -it --name nome-container --network nome-rede ubunto bash
 
+Para conectar rede em um container em execução:
+> docker network connect minha-rede meu-container
+
 ## BRIDGE
 
 A rede bridge criada pelo usuário, prove uma comunicação automatica via DNS
@@ -196,7 +199,7 @@ A grosso modo, quando criamos um container com a network *none*, estamos dizendo
 
 ## HOST
 
-Com esse netowork *host* tiramos qualquer isolamento de rede, por exemplo, um container que executa uma aplicaçao na porta 8080, significa que atravez do meu host na porta 8080 eu consigo acessar o container, sem qualquer isolamento de rede.
+Com esse netowork *host* tiramos qualquer isolamento de rede, por exemplo, um container que executa uma aplicaçao na porta 8080, significa que atravez do meu host na porta 8080 eu consigo acessar o container, sem qualquer isolamento de rede. (Somente para linux)
 
 #
 
@@ -224,5 +227,46 @@ Derrubar os serviços do docker-compose
 Podemos definir dependencia de um serviço para outro, dessa forma definimos a order dos containers a serem executados.
 Isso nao significa que, o docker vai esperar a aplicaçao dentro do container estar pronta, mas sim, o container estar up.
 
+#
+
+### CMD e ENTRYPOINT
+
+*CDM* é um comando que será executado no container que poderá ser sobrescrito.
+
+Já o *ENTRYPOINT* não pode, uma vez definido, será executado.
 
 
+#
+
+### ADD e COPY 
+
+São basicamente a mesma coisa,  unica diferença é que o *ADD* possui mais funcionalidades, como Baixar arquivo de alguma url ou extrair arquivos de forma automatica que estejam no formato ***.tar***
+
+#
+
+## TAG 
+
+Login:
+> docker login
+
+Criar tag da imagem:
+> docker tag nome_imagem usuarioDockerHub/nome_imagem_docker_hub
+
+Enviar para o docker Hub
+> docker push
+
+#
+
+## Start Na AWS:
+
+> sudo yum update -y
+
+> sudo yum -y install docker
+
+> sudo service docker start
+
+> sudo usermod -a -G docker ec2-user
+
+> sudo chmod 666 /var/run/docker.sock
+
+> docker version

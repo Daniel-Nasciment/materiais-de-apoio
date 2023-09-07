@@ -1,0 +1,8 @@
+# Use a imagem oficial do Elasticsearch
+FROM docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+
+# Configure o cluster
+ENV discovery.type single-node
+
+# Configure a porta exposta
+EXPOSE 9200 9300
