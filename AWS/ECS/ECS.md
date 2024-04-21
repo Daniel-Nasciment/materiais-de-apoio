@@ -83,3 +83,37 @@ Comando utilizados para subir uma imagem do nginx (Exemplo AWS)
 
 Podemos definir regras para apagar imagens que não estão sendo utilizadas.
 Por exemplo apagar imagens mais velhas do que 1 mês. Se houver mais de 5 imagens com o prefixo *v* ele mantém somente o que eu definir, etc. Visa manter o registry organizado.
+
+#
+
+## Secret Manager
+
+Armazenador de credenciais.
+
+
+Função de execução de tarefa:
+
+* Toda tarefa no ECS contém uma role.
+
+- Acessar o IAM
+- Criar nova politica
+- Escolher o Secret manager
+    - Ação -> getSecretValue
+- Adicionar o ARN criado no secret manager
+- Adicionar uma permissão adicionao ao KMS (Gerenciador de chaves para decrypt)
+- Copiar o arn do secret manager dentro do painel do KMS
+
+Com isso está dando acesso ao secret manager com a permissão de getSecretValue e ao kms para decrypt.
+
+
+- Copiar o JSON para adicionar ao repositório
+
+No workflow, tem um step que baixa a task definition, nesse caso precisaremos remover, pois há um valor que temos que definir manualmente que seria o *secret*.
+
+```yml
+secrets:
+  - name: USUARIO
+    valueFrom: arn:aws:secretsmanager:regiao:conta:secret:nomeSecret:valorCriadoNoSecretsManager::
+```
+
+Nessa sintaxe, "name" se refere ao nome da variável de ambiente que será utilizada no contêiner, e "valueFrom" é a referência para o ARN (Amazon Resource Name) do segredo no Secrets Manager da AWS.
