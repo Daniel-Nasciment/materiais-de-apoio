@@ -5,58 +5,85 @@ O Design Pattern Chain of Responsibility é útil em situações onde várias en
 ### 2. Exemplo de Código:
 
 ```java
-// Interface Handler
-interface GameObject {
-    void handleEvent(GameEvent event);
+// Interface para os manipuladores de eventos de colisão
+interface CollisionHandler {
+    void handleCollision(GameObject gameObject);
 }
 
-// Implementações concretas de GameObject
-class Player implements GameObject {
+// GameObjects que podem colidir
+class GameObject {
+    private CollisionHandler collisionHandler;
+
+    public GameObject(CollisionHandler collisionHandler) {
+        this.collisionHandler = collisionHandler;
+    }
+
+    public void collideWith(GameObject other) {
+        collisionHandler.handleCollision(other);
+    }
+}
+
+// Implementações concretas de CollisionHandler
+class SoldierCollisionHandler implements CollisionHandler {
     @Override
-    public void handleEvent(GameEvent event) {
-        if (event.getType().equals("PlayerEvent")) {
-            System.out.println("Player handled the event: " + event.getDescription());
+    public void handleCollision(GameObject gameObject) {
+        if (gameObject instanceof Soldier) {
+            System.out.println("Soldier collided with another soldier");
+        } else if (gameObject instanceof Vehicle) {
+            System.out.println("Soldier collided with a vehicle");
+        } else {
+            System.out.println("Soldier collided with an obstacle");
         }
     }
 }
 
-class Enemy implements GameObject {
+class VehicleCollisionHandler implements CollisionHandler {
     @Override
-    public void handleEvent(GameEvent event) {
-        if (event.getType().equals("EnemyEvent")) {
-            System.out.println("Enemy handled the event: " + event.getDescription());
+    public void handleCollision(GameObject gameObject) {
+        if (gameObject instanceof Soldier) {
+            System.out.println("Vehicle collided with a soldier");
+        } else if (gameObject instanceof Vehicle) {
+            System.out.println("Vehicle collided with another vehicle");
+        } else {
+            System.out.println("Vehicle collided with an obstacle");
         }
     }
 }
 
-// Classe de evento do jogo
-class GameEvent {
-    private String type;
-    private String description;
-
-    public GameEvent(String type, String description) {
-        this.type = type;
-        this.description = description;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public String getDescription() {
-        return description;
+// Classes de objetos do jogo
+class Soldier extends GameObject {
+    public Soldier(CollisionHandler collisionHandler) {
+        super(collisionHandler);
     }
 }
 
-// Game class
-public class Game {
+class Vehicle extends GameObject {
+    public Vehicle(CollisionHandler collisionHandler) {
+        super(collisionHandler);
+    }
+}
+
+class Obstacle extends GameObject {
+    public Obstacle(CollisionHandler collisionHandler) {
+        super(collisionHandler);
+    }
+}
+
+// Exemplo de Uso
+public class CallOfDuty {
     public static void main(String[] args) {
-        GameObject player = new Player();
-        GameObject enemy = new Enemy();
+        // Configuração das colisões
+        CollisionHandler soldierCollisionHandler = new SoldierCollisionHandler();
+        CollisionHandler vehicleCollisionHandler = new VehicleCollisionHandler();
 
-        // Configuração da cadeia
-        player.handleEvent(new GameEvent("PlayerEvent", "Player's action"));
-        enemy.handleEvent(new GameEvent("EnemyEvent", "Enemy's action"));
+        // Criação de objetos do jogo
+        Soldier soldier = new Soldier(soldierCollisionHandler);
+        Vehicle vehicle = new Vehicle(vehicleCollisionHandler);
+        Obstacle obstacle = new Obstacle(soldierCollisionHandler);
+
+        // Simulação de colisões
+        soldier.collideWith(vehicle);
+        vehicle.collideWith(obstacle);
     }
 }
 
