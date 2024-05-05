@@ -1,8 +1,6 @@
 # Comandos Git e Exemplos
 
-1. > **git remote -v**:
-
-
+### 1. > **git remote -v**:
 
 
  Exibe os repositórios remotos atualmente configurados, juntamente com suas URLs.
@@ -12,12 +10,9 @@ origin https://github.com/seu-usuario/seu-repositorio.git (fetch)
 origin https://github.com/seu-usuario/seu-repositorio.git (push)
 
 
+#
 
-
-2. > **git log --graph**:
-
-
-
+### 2. > **git log --graph**:
 
  Exibe o histórico de commits de forma gráfica, mostrando os diferentes ramos e suas interconexões.
 
@@ -34,11 +29,9 @@ commit b4e5f6c
 |
 | Outra descrição de commit
 
+#
 
-
-3. > **git checkout --arquivo**:
-
-
+### 3. > **git checkout --arquivo**:
 
 
  Descarta as alterações não salvas em um arquivo, restaurando-o para o estado do último commit.
@@ -46,12 +39,10 @@ commit b4e5f6c
 Exemplo:
 git checkout -- index.html
 
+#
 
 
-
-4. > **git revert hash**:
-
-
+### 4. > **git revert hash**:
 
 
  Cria um novo commit que desfaz as alterações introduzidas por um commit específico.
@@ -60,11 +51,9 @@ Exemplo:
 git revert c1a2b3d
 
 
+#
 
-
-5. > **git stash**:
-
-
+### 5. > **git stash**:
 
 
  Salva as alterações locais em um local temporário, permitindo alternar para outro ramo ou realizar outras operações sem comprometer as alterações.
@@ -73,11 +62,9 @@ Exemplo:
 git stash
 
 
+#
 
-
-6. > **git stash list**:
-
-
+### 6. > **git stash list**:
 
 
  Lista todas as entradas no stash, mostrando as alterações salvas temporariamente.
@@ -85,12 +72,10 @@ git stash
 Exemplo:
 stash@{0}: WIP on main: c1a2b3d Descrição do commit
 
+#
 
 
-
-7. > **git stash pop**:
-
-
+### 7. > **git stash pop**:
 
 
  Remove a última entrada do stash e aplica suas alterações no diretório de trabalho.
@@ -98,12 +83,10 @@ stash@{0}: WIP on main: c1a2b3d Descrição do commit
 Exemplo:
 git stash pop
 
+#
 
 
-
-8. > **git checkout hash**:
-
-
+### 8. > **git checkout hash**:
 
 
  Move o HEAD para o commit especificado, colocando o repositório em um estado específico.
@@ -111,12 +94,10 @@ git stash pop
 Exemplo:
 git checkout c1a2b3d
 
+#
 
 
-
-9. > **git diff hash..hash**:
-
-
+### 9. > **git diff hash..hash**:
 
 
  Mostra as diferenças entre dois commits, especificados por seus hashes.
@@ -125,11 +106,9 @@ Exemplo:
 git diff b4e5f6c..c1a2b3d
 
 
+#
 
-
-10. > **git diff**:
-
-
+### 10. > **git diff**:
 
 
  Mostra as diferenças entre o diretório de trabalho e o índice (staging area).
@@ -139,9 +118,9 @@ git diff b4e5f6c..c1a2b3d
  git diff
  ```
 
-11. > **git tag -a nome-tag -m "mensagem"**:
+#
 
-
+### 11. > **git tag -a nome-tag -m "mensagem"**:
 
 
  Cria uma tag anotada em um commit específico, geralmente usada para marcar versões.
@@ -151,9 +130,9 @@ git diff b4e5f6c..c1a2b3d
  git tag -a v1.0 -m "Versão inicial"
  ```
 
-12. > **git push nome-tag**:
+#
 
-
+### 12. > **git push nome-tag**:
 
 
  Envia uma tag específica para o repositório remoto.
@@ -163,9 +142,9 @@ git diff b4e5f6c..c1a2b3d
  git push origin v1.0
  ```
 
-13. > **git restore --source hash ./arquivo**:
+#
 
-
+### 13. > **git restore --source hash ./arquivo**:
 
 
  Restaura um arquivo para um estado específico de um commit.
@@ -175,9 +154,9 @@ git diff b4e5f6c..c1a2b3d
  git restore --source c1a2b3d index.html
  ```
 
-14. > **git cherry pick hash**:
+#
 
-
+### 14. > **git cherry pick hash**:
 
 
  Aplica um commit específico em outro ramo.
@@ -187,9 +166,9 @@ git diff b4e5f6c..c1a2b3d
  git cherry-pick b4e5f6c
  ```
 
-15. > **git rebase -I head~3/hash**:
+#
 
-
+### 15. > **git rebase -I head~3/hash**:
 
 
  Reorganiza e combina commits, permitindo editar mensagens de commit, dividir commits, etc.
@@ -199,9 +178,9 @@ git diff b4e5f6c..c1a2b3d
  git rebase -i HEAD~3
  ```
 
-16. > **git bisect start**:
+#
 
-
+### 16. > **git bisect start**:
 
 
  Inicia uma busca binária para encontrar um commit que introduziu um determinado problema.
@@ -210,10 +189,9 @@ git diff b4e5f6c..c1a2b3d
  ```
  git bisect start
  ```
+#
 
-17. > **git bisect bad head**:
-
-
+### 17. > **git bisect bad head**:
 
 
  Marca o commit atual como ruim (contendo o problema).
@@ -222,10 +200,9 @@ git diff b4e5f6c..c1a2b3d
  ```
  git bisect bad HEAD
  ```
+#
 
-18. > **git bisect good hash**:
-
-
+### 18. > **git bisect good hash**:
 
 
  Marca um commit como bom (não contendo o problema).
@@ -234,10 +211,9 @@ git diff b4e5f6c..c1a2b3d
  ```
  git bisect good c1a2b3d
  ```
+#
 
-19. > **git bisect bad/good**:
-
-
+### 19. > **git bisect bad/good**:
 
 
  Marca o commit atual como ruim ou bom, dependendo se o problema está presente ou não.
@@ -246,10 +222,9 @@ git diff b4e5f6c..c1a2b3d
  ```
  git bisect bad
  ```
+#
 
-20. > **git bisect reset**:
-
-
+### 20. > **git bisect reset**:
 
 
  Finaliza o processo de busca binária e retorna ao estado original.
@@ -258,10 +233,9 @@ git diff b4e5f6c..c1a2b3d
  ```
  git bisect reset
  ```
+#
 
-21. > **git show hash**:
-
-
+### 21. > **git show hash**:
 
 
  Exibe informações detalhadas sobre um commit específico.
@@ -270,10 +244,9 @@ git diff b4e5f6c..c1a2b3d
  ```
  git show c1a2b3d
  ```
+#
 
-22. > **git blame arquivo**:
-
-
+### 22. > **git blame arquivo**:
 
 
  Exibe quem modificou cada linha de um arquivo, juntamente com o commit correspondente.
