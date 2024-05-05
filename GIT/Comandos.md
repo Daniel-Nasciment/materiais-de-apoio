@@ -37,7 +37,9 @@ commit b4e5f6c
  Descarta as alterações não salvas em um arquivo, restaurando-o para o estado do último commit.
 
 Exemplo:
+```
 git checkout -- index.html
+```
 
 #
 
@@ -48,8 +50,9 @@ git checkout -- index.html
  Cria um novo commit que desfaz as alterações introduzidas por um commit específico.
 
 Exemplo:
+```
 git revert c1a2b3d
-
+```
 
 #
 
@@ -59,8 +62,9 @@ git revert c1a2b3d
  Salva as alterações locais em um local temporário, permitindo alternar para outro ramo ou realizar outras operações sem comprometer as alterações.
 
 Exemplo:
+```
 git stash
-
+```
 
 #
 
@@ -81,8 +85,9 @@ stash@{0}: WIP on main: c1a2b3d Descrição do commit
  Remove a última entrada do stash e aplica suas alterações no diretório de trabalho.
 
 Exemplo:
+```
 git stash pop
-
+```
 #
 
 
@@ -92,8 +97,9 @@ git stash pop
  Move o HEAD para o commit especificado, colocando o repositório em um estado específico.
 
 Exemplo:
+```
 git checkout c1a2b3d
-
+```
 #
 
 
@@ -103,8 +109,9 @@ git checkout c1a2b3d
  Mostra as diferenças entre dois commits, especificados por seus hashes.
 
 Exemplo:
+```
 git diff b4e5f6c..c1a2b3d
-
+```
 
 #
 
