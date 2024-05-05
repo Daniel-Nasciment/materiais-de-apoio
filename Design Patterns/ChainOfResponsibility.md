@@ -66,7 +66,6 @@ public class CallOfDuty {
         // Criação de objetos do jogo
         Soldier soldier = new Soldier(soldierCollisionHandler);
         Vehicle vehicle = new Vehicle(vehicleCollisionHandler);
-        Obstacle obstacle = new Obstacle(soldierCollisionHandler);
 
         // Simulação de colisões
         soldier.collideWith(vehicle);
