@@ -29,24 +29,16 @@ class SoldierCollisionHandler implements CollisionHandler {
     public void handleCollision(GameObject gameObject) {
         if (gameObject instanceof Soldier) {
             System.out.println("Soldier collided with another soldier");
-        } else if (gameObject instanceof Vehicle) {
-            System.out.println("Soldier collided with a vehicle");
-        } else {
-            System.out.println("Soldier collided with an obstacle");
-        }
+        } 
     }
 }
 
 class VehicleCollisionHandler implements CollisionHandler {
     @Override
     public void handleCollision(GameObject gameObject) {
-        if (gameObject instanceof Soldier) {
-            System.out.println("Vehicle collided with a soldier");
-        } else if (gameObject instanceof Vehicle) {
+        if (gameObject instanceof Vehicle) {
             System.out.println("Vehicle collided with another vehicle");
-        } else {
-            System.out.println("Vehicle collided with an obstacle");
-        }
+        } 
     }
 }
 
@@ -63,11 +55,6 @@ class Vehicle extends GameObject {
     }
 }
 
-class Obstacle extends GameObject {
-    public Obstacle(CollisionHandler collisionHandler) {
-        super(collisionHandler);
-    }
-}
 
 // Exemplo de Uso
 public class CallOfDuty {
