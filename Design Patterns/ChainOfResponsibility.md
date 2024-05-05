@@ -8,9 +8,62 @@ O Design Pattern Chain of Responsibility é útil em situações onde várias en
 // Interface para os manipuladores de eventos de colisão
 interface CollisionHandler {
     void handleCollision(GameObject gameObject);
+    void setNextHandler(CollisionHandler nextHandler);
 }
 
-// GameObjects que podem colidir
+// Implementações concretas de CollisionHandler
+class SoldierCollisionHandler implements CollisionHandler {
+    private CollisionHandler nextHandler;
+
+    @Override
+    public void setNextHandler(CollisionHandler nextHandler) {
+        this.nextHandler = nextHandler;
+    }
+
+    @Override
+    public void handleCollision(GameObject gameObject) {
+        if (gameObject instanceof Soldier) {
+            System.out.println("Soldier collided with another soldier");
+        } else if (nextHandler != null) {
+            nextHandler.handleCollision(gameObject);
+        }
+    }
+}
+
+class VehicleCollisionHandler implements CollisionHandler {
+    private CollisionHandler nextHandler;
+
+    @Override
+    public void setNextHandler(CollisionHandler nextHandler) {
+        this.nextHandler = nextHandler;
+    }
+
+    @Override
+    public void handleCollision(GameObject gameObject) {
+        if (gameObject instanceof Vehicle) {
+            System.out.println("Vehicle collided with another vehicle");
+        } else if (nextHandler != null) {
+            nextHandler.handleCollision(gameObject);
+        }
+    }
+}
+
+class ObstacleCollisionHandler implements CollisionHandler {
+    @Override
+    public void setNextHandler(CollisionHandler nextHandler) {
+        // ObstacleCollisionHandler é o último na cadeia, então não há próximo manipulador
+        throw new UnsupportedOperationException("ObstacleCollisionHandler não pode ter um próximo manipulador");
+    }
+
+    @Override
+    public void handleCollision(GameObject gameObject) {
+        if (gameObject instanceof Obstacle) {
+            System.out.println("Obstacle collided with something");
+        }
+    }
+}
+
+// Classes de objetos do jogo
 class GameObject {
     private CollisionHandler collisionHandler;
 
@@ -23,26 +76,6 @@ class GameObject {
     }
 }
 
-// Implementações concretas de CollisionHandler
-class SoldierCollisionHandler implements CollisionHandler {
-    @Override
-    public void handleCollision(GameObject gameObject) {
-        if (gameObject instanceof Soldier) {
-            System.out.println("Soldier collided with another soldier");
-        } 
-    }
-}
-
-class VehicleCollisionHandler implements CollisionHandler {
-    @Override
-    public void handleCollision(GameObject gameObject) {
-        if (gameObject instanceof Vehicle) {
-            System.out.println("Vehicle collided with another vehicle");
-        } 
-    }
-}
-
-// Classes de objetos do jogo
 class Soldier extends GameObject {
     public Soldier(CollisionHandler collisionHandler) {
         super(collisionHandler);
@@ -55,23 +88,34 @@ class Vehicle extends GameObject {
     }
 }
 
+class Obstacle extends GameObject {
+    public Obstacle(CollisionHandler collisionHandler) {
+        super(collisionHandler);
+    }
+}
 
 // Exemplo de Uso
 public class CallOfDuty {
     public static void main(String[] args) {
         // Configuração das colisões
-        CollisionHandler soldierCollisionHandler = new SoldierCollisionHandler();
-        CollisionHandler vehicleCollisionHandler = new VehicleCollisionHandler();
+        CollisionHandler soldierHandler = new SoldierCollisionHandler();
+        CollisionHandler vehicleHandler = new VehicleCollisionHandler();
+        CollisionHandler obstacleHandler = new ObstacleCollisionHandler();
+
+        soldierHandler.setNextHandler(vehicleHandler);
+        vehicleHandler.setNextHandler(obstacleHandler);
 
         // Criação de objetos do jogo
-        Soldier soldier = new Soldier(soldierCollisionHandler);
-        Vehicle vehicle = new Vehicle(vehicleCollisionHandler);
+        Soldier soldier = new Soldier(soldierHandler);
+        Vehicle vehicle = new Vehicle(soldierHandler);
+        Obstacle obstacle = new Obstacle(soldierHandler);
 
         // Simulação de colisões
         soldier.collideWith(vehicle);
         vehicle.collideWith(obstacle);
     }
 }
+
 
 ```
 
