@@ -240,3 +240,73 @@ A latência pode variar por vários motivos:
 ---
 
 📌 **Sistemas escaláveis não evitam falhas, mas as tratam da forma menos impactante possível!**
+
+# Definição de Workload de uma Aplicação
+
+Existem várias formas de definir o **workload** de uma aplicação. Duas principais categorias são:
+
+## I/O Bound vs CPU Bound
+
+### ⚡ I/O Bound
+- **Definição:** Grande parte do tempo de execução é gasto esperando por operações de **I/O** (como comunicação em rede, acesso ao banco de dados, leitura de disco, interação com sistemas externos, etc).
+- **Características:** 
+  - Sistemas distribuídos geralmente se encaixam aqui.
+  - A performance é frequentemente limitada pela **I/O**.
+  - A tunagem de **I/O** pode melhorar significativamente a performance.
+
+### 💻 CPU Bound
+- **Definição:** A maior parte do tempo de execução é usada pela **CPU**, com pouco tempo gasto em I/O.
+- **Características:**
+  - A performance da aplicação é limitada pela capacidade de processamento da **CPU**.
+
+---
+
+# Gargalos de Performance na Camada de Persistência
+
+A maioria dos gargalos de performance estão relacionados à camada de persistência. Por isso, investir tempo na otimização dessa camada é crucial.
+
+## Transação com o Banco de Dados
+
+### ⏳ 1. Tempo para Adquirir Conexão
+- **Importante:** Não podemos permitir que a aplicação abra conexões de forma descontrolada.
+- **Solução:** Configurar o pool de conexões (mínimo e máximo) para otimizar o uso de conexões.
+  - **Benefício:** Evita abertura e fechamento desnecessário de conexões, o que acelera a comunicação.
+  - **Dica:** Quando o banco responde mais rápido, o throughput aumenta. Portanto, um pool de conexões menor é muitas vezes mais eficiente.
+  - **Observação:** Não há mágica aqui; é necessário mensurar e testar para definir o tamanho adequado do pool.
+
+### 🔄 2. Tempo de Requisição com o Banco
+- **Solução:** Habilitar **batch size** e realizar operações em lote.
+  - **Benefício:** Menos round trips e menor tempo de resposta.
+
+### 🛠️ 3. Tempo de Execução no Banco
+- **Otimizações recomendadas:**
+  - Otimizar **queries**.
+  - Utilizar ferramentas como **EXPLAIN ANALYZE** e **buffer** para analisar a performance de consultas.
+  - **Buscas indexadas** são essenciais para melhorar o tempo de execução.
+  - **Dica:** Utilize o índice para acelerar as buscas.
+  - **Use funções de janela** (**window functions**) para otimizar o processamento de dados no banco.
+  - **Levar o processamento para perto dos dados** (como procedures) pode reduzir a latência, embora haja controvérsias sobre a centralização das regras de negócio.
+
+### ⏱️ 4. Tempo de Resposta do Banco
+- **Soluções recomendadas:**
+  - Use **consultas planejadas** (projection) para limitar os dados retornados.
+  - **Evite o problema de N+1 queries** (select N+1).
+  - Configure o relacionamento **um para muitos** como **eager loading** (se a entidade filha for necessária e não impactar outros casos de uso).
+  - Implemente **paginação** nas consultas para diminuir a quantidade de dados recuperados.
+
+  **Benefício:** Menos dados retornados resultam em um tempo de resposta mais rápido.
+
+### 💤 5. Tempo que a Transação Fica Ociosa
+- **Dica:** O **transaction response time** (considerando as otimizações acima) deve ser o menor possível para aumentar o throughput.
+- **Nota importante:** Criar novas conexões com o banco de dados é uma operação cara. Portanto, o pool de conexões deve ser otimizado para evitar criação excessiva de conexões.
+
+---
+
+# Resumo de Melhores Práticas para Otimização
+
+- 📊 **Mensure e teste** as configurações de pool de conexões.
+- 🛠️ **Prefira operações em lote** para reduzir o número de round trips.
+- 🔍 **Otimize as queries** com ferramentas como **EXPLAIN ANALYZE** e **índices**.
+- 🔄 **Utilize window functions** e mantenha o processamento próximo aos dados.
+- 📝 **Use consultas planejadas**, **eager loading** e **paginação** para otimizar o tempo de resposta do banco.
+- ⚡ **Reduza o transaction response time** para aumentar o throughput e minimizar a ociosidade das transações.
