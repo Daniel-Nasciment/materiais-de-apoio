@@ -196,3 +196,47 @@ A latência pode variar por vários motivos:
 ✔ **Cada requisição pode ser atendida por qualquer máquina**.  
 ✔ **Melhor escalabilidade** e **menos dependência de replicação de sessão**.  
 ✔ Pode ser necessário um **cluster de Redis** para evitar pontos únicos de falha.  
+
+# 🚀 Como Rastrear e Tratar Falhas em Sistemas Escaláveis
+
+## 🔥 Os 20% que Explicam 80% das Falhas
+
+### 1️⃣ Logs Estruturados e Centralizados
+- ✔ Use **JSON** para facilitar análise e busca.
+- ✔ Envie logs para uma ferramenta centralizada (**ELK Stack, Grafana Loki, Datadog**).
+- ✔ Registre logs com **correlação de IDs** para rastrear requisições distribuídas.
+
+---
+
+### 2️⃣ Monitoramento Contínuo
+- ✔ Utilize métricas (**Prometheus, Grafana, New Relic, Datadog**).
+- ✔ Acompanhe **CPU, memória, latência, throughput e taxa de erro**.
+- ✔ Configure **alertas** para anomalias.
+
+---
+
+### 3️⃣ Tracing Distribuído (Observabilidade)
+- ✔ Ferramentas como **Jaeger, Zipkin, OpenTelemetry** ajudam a entender fluxos de requisição.
+- ✔ **Adicione IDs únicos em cada requisição** para rastrear onde ocorrem gargalos.
+
+---
+
+### 4️⃣ Retries e Circuit Breakers
+- ✔ Use **retries** com **exponential backoff** para falhas temporárias.
+- ✔ **Circuit Breaker** (**Resilience4j, Hystrix**) impede sobrecarga em serviços instáveis.
+
+---
+
+### 5️⃣ Fallbacks e Graceful Degradation
+- ✔ Se um serviço falhar, forneça **dados cacheados** ou uma **resposta alternativa**.
+- ✔ Em **falhas parciais**, degrade funcionalidades sem impactar toda a aplicação.
+
+---
+
+### 6️⃣ Testes de Resiliência
+- ✔ Simule falhas com **Chaos Engineering** (**Chaos Monkey, Gremlin**).
+- ✔ Realize **Testes de Carga** para encontrar pontos de saturação antes que ocorra um problema real.
+
+---
+
+📌 **Sistemas escaláveis não evitam falhas, mas as tratam da forma menos impactante possível!**
