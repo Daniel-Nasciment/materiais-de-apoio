@@ -310,3 +310,117 @@ A maioria dos gargalos de performance estão relacionados à camada de persistê
 - 🔄 **Utilize window functions** e mantenha o processamento próximo aos dados.
 - 📝 **Use consultas planejadas**, **eager loading** e **paginação** para otimizar o tempo de resposta do banco.
 - ⚡ **Reduza o transaction response time** para aumentar o throughput e minimizar a ociosidade das transações.
+
+
+# Cache no Hibernate e Spring Boot
+
+## 📌 First Level Cache (Cache de Primeiro Nível)
+- Gerenciado pelo **EntityManager**.
+- Armazena entidades dentro do **contexto da transação**.
+- Se a mesma busca for feita várias vezes dentro da mesma transação, os dados são buscados do cache ao invés do banco.
+
+## 📌 Second Level Cache (Cache de Segundo Nível)
+- Gerenciado pelo **EntityManagerFactory**.
+- Cache compartilhado entre diferentes transações.
+- **Habilitação no Spring Boot**:
+  1. Configurar o Hibernate no `application.properties`.
+  2. Anotar as entidades com `@Cacheable` para habilitar o cache.
+  3. Cachear relacionamentos se necessário.
+
+**⚠️ Apenas isso não basta! Precisamos de um Fine Tuning.**
+
+---
+
+## 🎯 Estratégias de Cache no Hibernate
+O Hibernate permite escolher a estratégia de cache conforme a necessidade:
+
+| Estratégia | Uso recomendado |
+|------------|----------------|
+| `read-only` | Melhor para objetos imutáveis (mais rápido e eficiente). |
+| `non-strict-read-write` | Para dados não críticos, onde a consistência pode ser menor. |
+| `read-write` | Mantém consistência com locks, mas é mais lento. |
+
+---
+
+## 🔧 Configuração do Cache
+Além de ativar e anotar as entidades, é necessário **configurar corretamente o provedor de cache**:
+
+1. **Definir o provedor de cache**  
+   - Exemplo: `EhcacheCachingProvider`.
+   
+2. **Configurar regiões de memória**  
+   - Usando `JCacheRegionFactory`.
+
+3. **Especificar o arquivo de configuração do EhCache**  
+   - Definir políticas de cache no arquivo XML (`ehcache.xml`).
+
+4. **Configuração por entidade**  
+   - No arquivo `ehcache.xml`, configurar regras individuais para cada entidade cacheada.
+
+---
+
+## 🚀 Benefícios do Cache
+Atacamos diretamente o **Response Time**, melhorando:
+- **Tempo de Requisição**
+- **Tempo de Execução**
+- **Tempo de Resposta**
+
+Isso resulta em uma grande melhoria na **latência** e no **throughput**.
+
+---
+
+## 🛠️ Cache no Spring Boot REST API
+Também podemos usar cache em APIs REST, por exemplo, em **controllers**, com a anotação:
+
+```java
+@Cacheable("usuarios")
+public Usuario getUsuario(Long id) {
+    return usuarioRepository.findById(id).orElseThrow();
+}
+```
+
+# 🚀 Processamento Assíncrono e Gerenciamento de Carga
+
+## ⏳ Não processe hoje o que você pode processar amanhã
+- Processamentos que envolvem escrita e operações pesadas são **custosos**.
+- Se um processamento é custoso, ele pode se tornar um **gargalo** no sistema.
+- A solução para isso é o **processamento assíncrono**.
+
+---
+
+## ⚙️ Uso do `@Async` no Spring
+- O Spring oferece a anotação `@Async`, permitindo a execução assíncrona de métodos.
+- Para cada requisição anotada com `@Async`, o Spring cria uma nova **thread** para processá-la.
+- Devemos decidir se otimizamos o **pool de threads** para **latência** ou **throughput**, conforme a necessidade.
+
+ ```java
+@Async
+public void processarPedido(Long pedidoId) {
+    // Processamento assíncrono aqui
+}
+```
+
+---
+
+## 🧵 Thread Pool Executor
+- O `ThreadPoolExecutor` gerencia chamadas assíncronas enfileirando processos e alocando-os em **threads específicas**.
+- Durante **picos de carga**, um pool de threads pode não ser suficiente, causando:
+  - **Excesso de processos pendentes**
+  - **Falta de memória (`OutOfMemoryError`)**
+  - **Reinicialização da aplicação**
+  - **Perda de itens na fila do pool de threads**
+
+---
+
+## 🛠️ Solução: Uso de Filas e Brokers
+- Para lidar com **picos de carga**, precisamos de **filas mais robustas e duráveis**.
+- Aqui entram os **brokers**, que atuam como **gerenciadores de fila**.
+
+### 📌 Substituindo `@Async` por consumidores de fila:
+- Em vez de `@Async`, podemos utilizar **consumidores de fila**, como `@JmsListener` ou `@KafkaListener`.
+- As **filas absorvem os picos de carga**.
+- Os **consumers processam mensagens na taxa que conseguem suportar**.
+- Esse mecanismo permite que o próprio **consumer
+
+
+
