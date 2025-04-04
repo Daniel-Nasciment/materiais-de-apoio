@@ -422,5 +422,117 @@ public void processarPedido(Long pedidoId) {
 - Os **consumers processam mensagens na taxa que conseguem suportar**.
 - Esse mecanismo permite que o próprio **consumer
 
+# Trade-offs em Sistemas Distribuídos
+
+## Performance vs Consistência
+
+- Quanto mais distante da fonte verdadeira da informação, maior a performance, porém menor a consistência.
+- É comum termos redundâncias de cache entre serviços, mas isso pode gerar inconsistências, já que os caches podem ficar desatualizados.
+- Uma alternativa é tentar sincronizar os serviços que dependem da mesma informação — embora isso traga sua própria complexidade.
+- Um dos grandes desafios nesse cenário é o **cache invalidation**.
+  - As estratégias de invalidação de cache variam de acordo com o contexto e a criticidade da consistência da informação.
+
+## Latência vs Throughput
+
+- Em sistemas mais distribuídos, geralmente se alcança maior **throughput**, mas com o custo de maior **latência**.
+- Ou seja:
+  - **Mais distribuição → maior throughput**
+  - **Mais nós envolvidos → maior latência**
+
+## Estratégias de Cache
+
+- Utilizar cache em memória pode não ser a melhor abordagem em todos os casos:
+  - Pode causar problemas como **garbage collection** excessiva, **out of memory**, entre outros.
+- Alternativa: utilizar uma solução de cache externa, como **Redis**.
+  - Isso permite manter o estado fora da memória da aplicação.
+  - Porém, a comunicação com o cache se dá via rede, o que pode adicionar latência.
+
+## Decisões de Arquitetura
+
+- Em determinado momento, pode ser necessário escolher entre **latência** ou **throughput**.
+- Em muitos cenários, otimizar os dois ao mesmo tempo não será possível — sendo necessário fazer **trade-offs** conscientes com base nos requisitos do negócio e nas limitações técnicas.
 
 
+# Mudança de Workflow: De Síncrono para Assíncrono
+
+## Impactos e Desafios
+
+### 1. Complexidade no Rastreamento de Falhas
+
+- Em sistemas síncronos, falhas são mais fáceis de identificar e tratar, pois ocorrem no mesmo fluxo de execução.
+- Já no modelo assíncrono, as falhas podem acontecer de forma desacoplada, tornando o **rastreio e monitoramento de erros mais complexo**.
+- É necessário implementar estratégias adicionais, como:
+  - Logs distribuídos
+  - Correlation IDs
+  - Sistemas de observabilidade (ex: tracing)
+
+### 2. Redução da Testabilidade
+
+- Testar workflows assíncronos é mais difícil:
+  - Envolve múltiplos componentes e filas/tópicos intermediários.
+  - Pode ser necessário mockar mensagerias ou usar ferramentas de testes integrados mais robustas.
+- Isso exige **infraestrutura de testes mais elaborada** e maior cobertura de testes de integração e contrato.
+
+### 3. Aumento da Complexidade no Desenvolvimento
+
+- O modelo assíncrono exige mudanças significativas na arquitetura:
+  - Divisão em etapas (steps)
+  - Gerenciamento de estados intermediários
+  - Tratamento de reprocessamento e duplicações
+- Consequentemente, o **desenvolvimento se torna mais complexo**, exigindo mais atenção a falhas parciais e consistência eventual.
+
+## Ignorando o Feedback do Fluxo
+
+- Em fluxos síncronos, é comum aguardar uma resposta da chamada (acknowledgement).
+- Ao mudar para um modelo **fire-and-forget** (ignorar o feedback da entrega):
+  - Aumenta-se significativamente o **throughput**.
+  - Porém, em caso de falha no envio ou na chamada, ela **será ignorada**, podendo resultar em **perda de mensagens**.
+- Essa abordagem só deve ser adotada quando:
+  - A perda de mensagens for aceitável.
+  - Existirem mecanismos de compensação, retries ou auditoria paralela.
+
+## Considerações Finais
+
+- A mudança para um modelo assíncrono pode trazer ganhos de escalabilidade e throughput, mas:
+  - Aumenta a complexidade de desenvolvimento e operação.
+  - Requer novos padrões de design e arquitetura.
+  - Pode comprometer a confiabilidade e a rastreabilidade se não for bem planejada.
+
+
+# Latência vs Consistência
+
+- Em sistemas distribuídos, especialmente em bancos de dados com réplicas, é comum ocorrer **inconsistência de leitura**.
+- Isso acontece, por exemplo, quando temos um banco de dados com **primário e réplicas**, sendo que as réplicas são atualizadas de forma **assíncrona**.
+- Esse é um trade-off clássico: ao **priorizar latência**, pode-se comprometer a **consistência imediata dos dados**.
+
+---
+
+# Coordination vs Race Conditions
+
+- Quando múltiplas instâncias ou threads acessam e modificam dados ao mesmo tempo, é necessário algum mecanismo de **coordenação** para garantir integridade.
+- A ausência dessa coordenação pode resultar em **race conditions**, onde o comportamento da aplicação se torna imprevisível devido à concorrência.
+
+---
+
+# Exemplo: Uso de `@Scheduled` do Spring com Acesso a Banco de Dados
+
+- Suponha um cenário onde uma tarefa agendada consulta e processa registros em uma tabela do banco.
+- Se utilizarmos mecanismos locais, como `synchronized`, conseguimos garantir que apenas **uma thread da mesma JVM** execute determinada lógica por vez.
+- No entanto, esse tipo de controle é **ineficaz em ambientes distribuídos**, onde múltiplas instâncias da aplicação estão em execução.
+
+---
+
+# Alternativa: Lock no Banco com Spring Data JPA
+
+- Em ambientes com múltiplas instâncias, é mais adequado utilizar **lock no banco de dados** para evitar que duas instâncias processem o mesmo registro ao mesmo tempo.
+- A ideia é que a instância que conseguir acessar um registro primeiro o bloqueie, garantindo exclusividade.
+- As demais instâncias, ao tentarem acessar registros já bloqueados, devem simplesmente **pular para o próximo registro disponível**, evitando conflito.
+- Essa abordagem melhora a coordenação entre instâncias e reduz o risco de concorrência nos dados.
+
+- Poderia ser usado por exemplo:
+
+```java
+@Lock(LockModeType.PESSIMISTIC_WRITE)
+@Query("SELECT r FROM Registro r WHERE r.status = 'PENDENTE'")
+List<Registro> buscarRegistrosParaProcessar();
+```
