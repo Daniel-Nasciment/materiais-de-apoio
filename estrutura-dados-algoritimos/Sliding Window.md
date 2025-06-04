@@ -68,6 +68,62 @@ while r < tamanho:
     r++
 ```
 
+## 🛠️ Exemplo
+
+```java
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Main {
+    public static void main(String[] args) {
+
+        // ✅ Lista de caracteres que será analisada
+        List<Character> characters = Arrays.asList('b', 'c', 'b', 'b', 'b', 'c', 'b', 'a');
+
+        // ✅ Ponteiros que representam a janela (Right e Left)
+        int r = 0; // direita
+        int l = 0; // esquerda
+
+        // ✅ Variável que vai guardar o tamanho máximo da janela válida encontrada
+        int max = 1;
+
+        // ✅ Mapa que conta quantas vezes cada caractere aparece na janela atual
+        Map<Character, Integer> contador = new HashMap<>();
+
+        // ✅ Inicializa o mapa com o primeiro caractere da lista
+        contador.put(characters.get(r), 1);
+
+        // 🚀 Começa a expandir a janela
+        while (r < characters.size() - 1) {
+            r += 1; // 👉 move a janela para a direita
+
+            // 👉 Atualiza o contador do caractere que entrou na janela
+            if (contador.containsKey(characters.get(r))) {
+                Integer i = contador.get(characters.get(r));
+                contador.put(characters.get(r), i + 1);
+            } else {
+                contador.put(characters.get(r), 1);
+            }
+
+            // 🔥 Enquanto a frequência do caractere atual for maior que 2, contrai pela esquerda
+            while (contador.get(characters.get(r)) > 2) {
+                Integer i = contador.get(characters.get(l));
+                contador.put(characters.get(l), i - 1);
+                l += 1; // 👉 move o ponteiro esquerdo para a direita (contraindo a janela)
+            }
+
+            // ✔️ Atualiza o tamanho máximo da janela válida
+            max = Math.max(max, r - l + 1);
+        }
+
+        // 🖨️ Exibe o resultado
+        System.out.println(max);
+    }
+}
+```
+
 ---
 
 ## 🧠 Entendendo o Fluxo Mental
