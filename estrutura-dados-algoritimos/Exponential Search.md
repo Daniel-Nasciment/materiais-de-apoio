@@ -51,6 +51,66 @@ Depois disso, você volta ao seu velho e confiável amigo: a **busca binária**,
 - 👉 **“Se eu ficar fazendo binary search desde o início, vou perder tempo achando o intervalo.”**
 - 👉 **“Posso usar exponential search para encontrar rapidamente o intervalo certo e depois binary search para finalizar.”**
 
+## 🏗️ Exemplo:
+```java
+import java.util.Arrays;
+import java.util.List;
+
+public class Main {
+
+    public static void main(String[] args) {
+        // Lista ordenada onde será feita a busca
+        List<Integer> nums = Arrays.asList(
+                1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21
+        );
+
+        int numeroBuscado = 14; // Valor a ser encontrado
+        int fim = 1;          // Ponto inicial da expansão
+        int steps = 0;        // Contador de passos (para análise)
+
+        // Verifica se o primeiro elemento já é o valor buscado
+        if (nums.get(0) == numeroBuscado) {
+            System.out.println(nums.get(0));
+            return;
+        }
+
+        // Etapa de busca exponencial: dobra o índice até ultrapassar ou encontrar o valor
+        while (fim < nums.size() - 1 && nums.get(fim) < numeroBuscado) {
+            if (nums.get(fim) == numeroBuscado) {
+                System.out.println(nums.get(fim));
+                return;
+            }
+            fim *= 2;
+        }
+
+        // Aplica binary search no intervalo identificado
+        binarySearch(fim / 2, Math.min(fim, nums.size() - 1), steps, nums, numeroBuscado);
+    }
+
+    // Busca binária entre os limites dados
+    private static void binarySearch(int inicio, int fim, int steps, List<Integer> nums, int numeroBuscado) {
+        while (inicio <= fim) {
+            steps++;
+
+            int meio = (inicio + fim) / 2;
+
+            if (nums.get(meio).equals(numeroBuscado)) {
+                System.out.println(steps); // Imprime número de passos até encontrar
+                return;
+            }
+
+            if (numeroBuscado > nums.get(meio)) {
+                inicio = meio + 1;
+            } else {
+                fim = meio - 1;
+            }
+        }
+    }
+}
+
+```
+
 ## 🏁 Conclusão
 
 - Exponential Search é como se fosse um **binóculo de longo alcance**: primeiro você dá uma olhada bem rápida no horizonte dobrando a distância, até enxergar onde está o que procura, e depois usa uma lupa (binary search) para achar exatamente onde está.
