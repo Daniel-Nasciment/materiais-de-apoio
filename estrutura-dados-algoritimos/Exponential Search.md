@@ -76,11 +76,7 @@ public class Main {
         }
 
         // Etapa de busca exponencial: dobra o índice até ultrapassar ou encontrar o valor
-        while (ponteiroR < nums.size() - 1 && nums.get(ponteiroR) < numeroBuscado) {
-            if (nums.get(ponteiroR) == numeroBuscado) {
-                System.out.println(nums.get(ponteiroR));
-                return;
-            }
+          while (ponteiroR < nums.size() - 1 && nums.get(ponteiroR) < numeroBuscado) {
             ponteiroR *= 2;
         }
 
