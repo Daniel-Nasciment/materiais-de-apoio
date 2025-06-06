@@ -66,7 +66,7 @@ public class Main {
         );
 
         int numeroBuscado = 14; // Valor a ser encontrado
-        int fim = 1;          // Ponto inicial da expansão
+        int ponteiroR = 1;          // Ponto inicial da expansão
         int steps = 0;        // Contador de passos (para análise)
 
         // Verifica se o primeiro elemento já é o valor buscado
@@ -76,16 +76,16 @@ public class Main {
         }
 
         // Etapa de busca exponencial: dobra o índice até ultrapassar ou encontrar o valor
-        while (fim < nums.size() - 1 && nums.get(fim) < numeroBuscado) {
-            if (nums.get(fim) == numeroBuscado) {
-                System.out.println(nums.get(fim));
+        while (ponteiroR < nums.size() - 1 && nums.get(ponteiroR) < numeroBuscado) {
+            if (nums.get(ponteiroR) == numeroBuscado) {
+                System.out.println(nums.get(ponteiroR));
                 return;
             }
-            fim *= 2;
+            ponteiroR *= 2;
         }
 
         // Aplica binary search no intervalo identificado
-        binarySearch(fim / 2, Math.min(fim, nums.size() - 1), steps, nums, numeroBuscado);
+        binarySearch(ponteiroR / 2, Math.min(ponteiroR, nums.size() - 1), steps, nums, numeroBuscado);
     }
 
     // Busca binária entre os limites dados
