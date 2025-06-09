@@ -122,6 +122,25 @@ E antes de virar qualquer seta, você **guarda o que vem depois** usando `next`.
 
 ---
 
+## 📌 Exemplo
+
+```java
+public static class Solution {
+        public ListNode reverseList(ListNode nodeHead) {
+            ListNode newNode = null;
+
+            while (nodeHead != null) {
+                ListNode nextNode = nodeHead.next;
+                nodeHead.next = newNode;       
+                newNode = nodeHead;            
+                nodeHead = nextNode;             
+            }
+
+            return newNode;
+        }
+    }
+```
+
 ## 📌 Recapitulando
 
 * Cada nó só conhece o próximo.
