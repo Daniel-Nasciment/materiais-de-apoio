@@ -26,6 +26,39 @@ Apesar de parecer semelhante à lógica de encontrar o **meio** de uma linked li
 - **Encontrar o meio**: quando o `fast` chega no fim, o `slow` estará no meio.
 - **Detectar ciclo**: verificamos se `slow` e `fast` colidem **antes** do `fast` chegar ao fim.
 
+## 🧠 Exemplo de código
+```java
+/**
+ * Definition for singly-linked list.
+ * class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) {
+ *         val = x;
+ *         next = null;
+ *     }
+ * }
+ */
+public class Solution {
+    public boolean hasCycle(ListNode head) {
+        
+        ListNode slow = head;
+        ListNode fast = head;
+
+        while (fast != null && fast.next != null) {
+            fast = fast.next.next;
+            slow = slow.next;
+            if(slow == fast) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }
+}
+```
+
 ## ✅ Resumo Divertido
 
 Dois ponteiros: um corre e o outro anda.  
