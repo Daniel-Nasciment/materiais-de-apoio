@@ -31,9 +31,6 @@ DFS (Depth-First Search) é um algoritmo de **busca em profundidade** que percor
 ## 📝 Código Java
 
 ```java
-// inorder = [9,3,15,20,7]
-// postorder = [9,15,7,20,3]
-
 public static boolean DFS(TreeNode node, int targetSum) {
 
     // Se o nó atual for nulo, não há o que verificar
