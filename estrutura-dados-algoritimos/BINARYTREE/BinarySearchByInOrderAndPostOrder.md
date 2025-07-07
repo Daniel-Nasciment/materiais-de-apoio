@@ -39,3 +39,29 @@ Portanto:
 > separe inorder em esquerda/direita →  
 > monte recursivamente **direita primeiro**, depois esquerda →  
 > continue até os segmentos se esgotarem.
+
+
+## 📝 Código Java
+
+```java
+// inorder = [9,3,15,20,7]
+// postorder = [9,15,7,20,3]
+
+public static boolean DFS(TreeNode node, int targetSum) {
+
+    // Se o nó atual for nulo, não há o que verificar
+    if (node == null) {
+        return false;
+    }
+
+    // Se for folha e o target bater, encontrou o caminho
+    if (node.left == null && node.right == null && targetSum == node.val){
+        return true;
+    }
+
+    // Continua buscando nos filhos (esquerda e direita)
+    // Subtrai o valor atual do target, mantendo o resto da soma a ser encontrado
+    return DFS(node.left, targetSum - node.val) 
+           || DFS(node.right, targetSum - node.val);
+}
+```
