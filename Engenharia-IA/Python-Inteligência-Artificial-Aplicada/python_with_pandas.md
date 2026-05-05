@@ -168,16 +168,6 @@ print(response.choices[0].message.content)
 
 ---
 
-## ⚠️ Correções importantes das anotações
-
-- `pd["coluna"]` ❌ → correto é `df["coluna"]`
-- `.unnique()` ❌ → correto é `.unique()`
-- `desactivate` ❌ → correto é `deactivate`
-- `.loc["ps5"]` só funciona se "ps5" for índice
-- `df[1]` ❌ → use `df.iloc[1]`
-
----
-
 ## 💡 Dica prática
 
 - Use Pandas para organizar dados (CSV, JSON, etc)
