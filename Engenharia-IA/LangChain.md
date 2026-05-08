@@ -1,179 +1,446 @@
-# 📚 Anotações LangChain (Guia Rápido e Prático)
 
-## 🚀 O que é o LangChain?
-O **LangChain** é um framework para construir aplicações com IA generativa.
-
-👉 Ele permite:
-- Orquestrar LLMs (modelos de linguagem)
-- Criar fluxos (pipelines) de execução
-- Usar o modelo certo para cada problema
-
-💡 Pense como:
-> Um “Spring Boot” + “pipeline builder” para IA
+# 📚 LangChain — Guia de Estudos (Python para IA)
 
 ---
 
-## 🔗 Conceito central: Cadeias (Chains)
+# 🚀 O que é o LangChain?
 
-As **chains** são pipelines de execução:
+O LangChain é um framework usado para construir aplicações com IA generativa.
 
-```
-Pergunta → Prompt → LLM → Parser → Resultado
-```
+Ele ajuda a:
 
-✔ Organiza o fluxo  
-✔ Facilita manutenção  
-✔ Permite compor soluções mais complexas  
+- 🔗 Orquestrar LLMs
+- ⚙️ Criar pipelines de execução
+- 🧠 Trabalhar com prompts
+- 🧩 Estruturar outputs
+- 🔄 Encadear fluxos complexos
+
+💡 Mentalidade:
+> Pense como um “pipeline builder” para aplicações de IA.
 
 ---
 
-## ⚙️ LCEL (LangChain Expression Language)
+# 🔗 Chains (Cadeias)
 
-É a forma moderna de montar chains.
+As chains representam o fluxo da aplicação.
 
-👉 Usa operador `|` (pipe), estilo funcional:
+Fluxo básico:
+
+```text
+Input → Prompt → LLM → Parser → Resultado
+```
+
+Exemplo mental:
+
+```text
+Pergunta do usuário
+        ↓
+Construção do prompt
+        ↓
+Modelo gera resposta
+        ↓
+Parser transforma output
+        ↓
+Resultado final
+```
+
+---
+
+# ⚙️ LCEL (LangChain Expression Language)
+
+O LCEL é a forma moderna de montar chains.
+
+Ele usa o operador `|` para conectar etapas:
 
 ```python
-chain = prompt | llm | parser
+chain = prompt | modelo | parser
+```
+
+💡 Pense como:
+- Java Streams
+- Pipeline funcional
+- Encadeamento de responsabilidades
+
+Cada etapa recebe algo e transforma.
+
+---
+
+# 🤖 Criando um modelo (LLM)
+
+## ChatOpenAI
+
+Mesmo usando LM Studio localmente, o LangChain utiliza o cliente compatível da OpenAI.
+
+```python
+from langchain_openai import ChatOpenAI
+
+modelo = ChatOpenAI(
+    model="google/gemma-3-4b",
+    base_url="http://localhost:1234/v1",
+    api_key="lm-studio"
+)
+```
+
+## 🧠 O que cada parâmetro faz?
+
+| Parâmetro | Função |
+|---|---|
+| model | Modelo carregado |
+| base_url | Endpoint do LM Studio |
+| api_key | Obrigatório pela interface OpenAI |
+
+---
+
+# 📝 Trabalhando com PromptTemplate
+
+O PromptTemplate permite criar prompts dinâmicos.
+
+```python
+from langchain_core.prompts import PromptTemplate
+
+prompt = PromptTemplate(
+    template="""
+    Sugira um filme baseado em {filme}
+    """,
+    input_variables=["filme"]
+)
+```
+
+---
+
+# 🧩 StrOutputParser
+
+O StrOutputParser transforma o output em texto puro.
+
+Sem parser:
+- retorna objeto complexo
+
+Com parser:
+- retorna apenas string
+
+```python
+from langchain_core.output_parsers import StrOutputParser
+
+chain = prompt | modelo | StrOutputParser()
+```
+
+---
+
+# 🔥 Executando uma chain
+
+## invoke()
+
+O invoke() executa a cadeia.
+
+```python
+resposta = chain.invoke({
+    "filme": "Homem de ferro 1"
+})
+```
+
+---
+
+# 🧠 Trabalhando com JSON estruturado
+
+Quando queremos respostas previsíveis, usamos parsers estruturados.
+
+---
+
+# 📦 JsonOutputParser
+
+O JsonOutputParser força o LLM a devolver JSON válido.
+
+```python
+from langchain_core.output_parsers import JsonOutputParser
+```
+
+---
+
+# 🏗️ Definindo estrutura com Pydantic
+
+Usamos BaseModel para definir o formato esperado.
+
+```python
+from pydantic import BaseModel, Field
+
+class Filme(BaseModel):
+    filme_recomendado: str = Field(
+        description="Nome do filme"
+    )
+
+    motivo_recomendacao: str = Field(
+        description="Motivo da recomendação"
+    )
 ```
 
 💡 Mentalidade:
-- Parece stream do Java
-- Cada etapa transforma o dado
+> Isso funciona quase como um DTO do Java.
 
 ---
 
-## 🧩 Output Parser (StrOutputParser)
-
-O `StrOutputParser` é o passo final da chain.
-
-👉 Ele:
-- Recebe a resposta do LLM
-- Extrai só o texto puro
-
-Sem ele:
-- você recebe objeto com metadata
-
-Com ele:
-- você recebe `"string limpa"`
+# ⚙️ Criando o parser JSON
 
 ```python
-chain = prompt | llm | StrOutputParser()
-```
-
----
-
-## 🧠 Exemplo 1: Prompt + LLM
-
-```python
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import PromptTemplate
-
-dias = 5
-filhos = 2
-atividade = "praia"
-
-modeloPrompt = PromptTemplate(
-    template = """
-    Crie um roteiro de viagem, com 3 coisas para se fazer, 
-    considerando que a viagem é de {numero_dias} dias, para uma familia com 
-    {numero_filhos} filhos e que eles gostam de 
-    atividades que envolvam {atividade_preferida}.
-    Você deve ser sussinto, objetivo, e o output esperado é conforme o seguinte exemplo: 
-    Atividade 1: Descrição da atividade (No maximo 1 linha de descrição)
-    """
-)
-
-prompt = modeloPrompt.format(
-    numero_dias = dias,
-    numero_filhos = filhos,
-    atividade_preferida = atividade
-)
-
-modelo = ChatOpenAI(
-    model = "google/gemma-3-4b",
-    base_url="http://localhost:1234/v1",
-    api_key="lm-studio"
+parseador = JsonOutputParser(
+    pydantic_object=Filme
 )
 ```
 
 ---
 
-## 🔥 Exemplo 2: Chain completa com LCEL
+# 🧠 Ensinando o modelo a responder corretamente
+
+O parser consegue gerar instruções automáticas.
 
 ```python
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import PromptTemplate
-from langchain_core.output_parsers import StrOutputParser
+prompt = PromptTemplate(
+    template="""
+    Sugira um filme baseado em {filme_assistido}
 
-mPrompt = PromptTemplate(
-    template = """
-    Sugira um ÚNICO filme, baseado no meu ultimo filme assistido que foi {filme}
+    {formato_saida}
     """,
-    input_variables = ["filme"]
+
+    input_variables=["filme_assistido"],
+
+    partial_variables={
+        "formato_saida":
+            parseador.get_format_instructions()
+    }
+)
+```
+
+## 🧠 O que é partial_variables?
+
+São variáveis fixas do prompt.
+
+Muito útil para:
+- instruções
+- contexto
+- regras de output
+
+---
+
+# 🔥 Chain com JSON estruturado
+
+```python
+chain = prompt | modelo | parseador
+```
+
+Resultado:
+
+```python
+{
+    "filme_recomendado": "...",
+    "motivo_recomendacao": "..."
+}
+```
+
+---
+
+# 🐛 Depuração (Debug)
+
+O LangChain permite visualizar o fluxo interno.
+
+```python
+from langchain_core.globals import set_debug
+
+set_debug(True)
+```
+
+Isso mostra:
+- prompts enviados
+- execução das chains
+- respostas do modelo
+- transformação dos parsers
+
+💡 Excelente para aprendizado.
+
+---
+
+# 🔄 Sequência de Chains
+
+Uma chain pode alimentar outra.
+
+Fluxo:
+
+```text
+Filme → Série relacionada
+```
+
+---
+
+# 🧠 Primeira estrutura (Filme)
+
+```python
+class Filme(BaseModel):
+    filme_recomendado: str
+    motivo_recomendacao: str
+```
+
+---
+
+# 📺 Segunda estrutura (Série)
+
+```python
+class Serie(BaseModel):
+    nome_serie: str
+    sinopse_serie: str
+    quantidade_temporadas: str
+```
+
+---
+
+# ⚙️ Criando os parsers
+
+```python
+parseador_filme = JsonOutputParser(
+    pydantic_object=Filme
 )
 
-modelo = ChatOpenAI(
-    model = "google/gemma-3-4b",
-    base_url="http://localhost:1234/v1",
-    api_key="lm-studio"
+parseador_serie = JsonOutputParser(
+    pydantic_object=Serie
+)
+```
+
+---
+
+# 📝 Criando prompts independentes
+
+## Prompt do filme
+
+```python
+prompt_filme = PromptTemplate(
+    template="""
+    Sugira um filme baseado em
+    {filme_assistido}
+
+    {formato_saida}
+    """,
+
+    input_variables=["filme_assistido"],
+
+    partial_variables={
+        "formato_saida":
+            parseador_filme.get_format_instructions()
+    }
+)
+```
+
+---
+
+## Prompt da série
+
+```python
+prompt_serie = PromptTemplate(
+    template="""
+    Sugira uma série baseada
+    no filme {filme_recomendado}
+
+    {formato_saida}
+    """,
+
+    partial_variables={
+        "formato_saida":
+            parseador_serie.get_format_instructions()
+    }
+)
+```
+
+---
+
+# 🔗 Criando chains independentes
+
+```python
+primeira_chain = (
+    prompt_filme
+    | modelo
+    | parseador_filme
 )
 
-cadeia = mPrompt | modelo | StrOutputParser()
+segunda_chain = (
+    prompt_serie
+    | modelo
+    | parseador_serie
+)
+```
 
-resposta = cadeia.invoke({"filme": "Homem de ferro 1"})
+---
+
+# 🚀 Encadeando múltiplas chains
+
+```python
+chain_principal = (
+    primeira_chain
+    | segunda_chain
+)
+```
+
+💡 O output da primeira vira input da segunda.
+
+---
+
+# 🔥 Executando tudo
+
+```python
+resposta = chain_principal.invoke({
+    "filme_assistido": "Homem de ferro 1"
+})
+
 print(resposta)
 ```
 
 ---
 
-## 🧠 Evolução (nível mais avançado)
+# 🧠 Resumo Geral
 
-Você pode:
-- Encadear várias chains
-- Usar outputs como input de outras
-- Criar fluxos dinâmicos
-
-Exemplo mental:
-
-```
-User Input
-   ↓
-Chain 1 (gera contexto)
-   ↓
-Chain 2 (refina resposta)
-   ↓
-Chain 3 (formata output)
-```
+| Conceito | Objetivo |
+|---|---|
+| Chain | Pipeline |
+| LCEL | Sintaxe moderna |
+| PromptTemplate | Prompt dinâmico |
+| ChatOpenAI | Comunicação com LLM |
+| StrOutputParser | Texto puro |
+| JsonOutputParser | JSON estruturado |
+| Pydantic | Estrutura do output |
+| invoke() | Executa chain |
+| partial_variables | Variáveis fixas |
+| set_debug() | Depuração |
 
 ---
 
-## 💡 Resumo Final
+# 🧠 Mentalidade Importante
 
-- 🔗 Chain = pipeline
-- ⚙️ LCEL = forma elegante de montar pipeline (`|`)
-- 🧩 Parser = transforma output
-- 🤖 LLM = motor de geração
+Python + LangChain ≠ Java tradicional
 
----
-
-## 🧠 Dica de Senior
-
-Python + LangChain ≠ Java
-
-👉 Aqui:
-- composição > estrutura rígida
-- fluxo > arquitetura pesada
+Aqui:
+- composição > herança pesada
+- fluxo > arquitetura rígida
+- pipelines > camadas excessivas
 
 ---
 
-## 🚀 Próximos passos
+# 🚀 Próximos Passos Naturais
 
-- Output estruturado (JSON)
-- Agents
-- Memory
-- Tools (integração com APIs)
+Depois disso, normalmente vem:
+
+- 🧠 Memory
+- 🛠️ Tools
+- 🤖 Agents
+- 📚 RAG
+- 🔎 Embeddings
+- 🗂️ Vector Databases
 
 ---
 
-Feito com base nos seus estudos 📈
+# 📈 Conclusão
+
+Você já estudou:
+- criação de prompts
+- chains
+- LCEL
+- parsers
+- JSON estruturado
+- encadeamento de chains
+- depuração
+
+Isso já é a base real de aplicações modernas com LangChain 🚀
