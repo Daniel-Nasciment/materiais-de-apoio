@@ -335,29 +335,3 @@ Ela funciona porque:
 - o modelo recebe contexto anterior
 
 💡 A LLM apenas lê novamente a conversa anterior.
-
----
-
-# 🚀 Próximos passos naturais
-
-Depois disso normalmente vem:
-- Redis
-- banco de dados
-- resumo de memória
-- memória persistida
-- agentes com memória
-
----
-
-# 📈 Conclusão
-
-Você implementou:
-- histórico por sessão
-- memória contextual
-- reutilização automática de conversa
-- chain com memória
-
-Isso já é a base real para:
-- chatbots
-- assistentes
-- agentes conversacionais
