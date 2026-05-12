@@ -1,4 +1,4 @@
-# 📚 RAG com LangChain
+# 📚 RAG com LangChain (TXT + PDF)
 
 ---
 
@@ -51,7 +51,7 @@ Responsável por:
 
 ```python
 from langchain_openai import OpenAIEmbeddings
-from langchain_community.document_loaders import TextLoader
+from langchain_community.document_loaders import TextLoader, PyPDFLoader
 from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 ```
@@ -59,7 +59,8 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 | Lib | Objetivo |
 |---|---|
 | OpenAIEmbeddings | Transformar texto em vetores |
-| TextLoader | Ler arquivos |
+| TextLoader | Ler `.txt` |
+| PyPDFLoader | Ler `.pdf` |
 | FAISS | Banco vetorial |
 | RecursiveCharacterTextSplitter | Quebrar textos |
 
@@ -72,6 +73,7 @@ pip install langchain
 pip install langchain-openai
 pip install langchain-community
 pip install faiss-cpu
+pip install pypdf
 ```
 
 ---
@@ -80,7 +82,7 @@ pip install faiss-cpu
 
 Embeddings transformam texto em números.
 
-Exemplo mental:
+Exemplo:
 
 ```text
 "carro" → [0.12, 0.98, 0.55]
@@ -105,19 +107,18 @@ embeddings = OpenAIEmbeddings(
 )
 ```
 
-## 📌 Parâmetros
+## 📌 Parâmetros principais
 
 | Parâmetro | Objetivo |
 |---|---|
 | model | Modelo de embedding |
 | base_url | Endpoint do LM Studio |
 | api_key | Compatibilidade OpenAI |
-| check_embedding_ctx_length | Ignora validação de contexto |
 | chunk_size | Quantidade enviada por vez |
 
 ---
 
-# 📄 TextLoader
+# 📄 Leitura de arquivos TXT
 
 ```python
 document = TextLoader(
@@ -127,8 +128,71 @@ document = TextLoader(
 ```
 
 Responsável por:
-- ler arquivos
+- ler `.txt`
 - transformar em `Document`
+
+---
+
+# 📄 Leitura de PDFs
+
+## 📦 Import necessário
+
+```python
+from langchain_community.document_loaders import PyPDFLoader
+```
+
+Responsável por:
+- ler PDFs
+- transformar páginas em `Document`
+
+---
+
+# 📌 Carregando múltiplos PDFs
+
+```python
+lista_docs = [
+    "gas.pdf",
+    "luz.pdf"
+]
+```
+
+---
+
+# ⚙️ Convertendo PDFs em Documents
+
+```python
+documentos = sum(
+    [
+        PyPDFLoader(arquivo).load()
+        for arquivo in lista_docs
+    ],
+    []
+)
+```
+
+---
+
+# 🧠 O que esse código faz?
+
+Cada PDF retorna:
+
+```python
+List[Document]
+```
+
+O `sum(..., [])`:
+- unifica todas as listas
+- gera uma única lista final
+
+Resultado:
+
+```python
+[
+    Document,
+    Document,
+    Document
+]
+```
 
 ---
 
@@ -136,13 +200,13 @@ Responsável por:
 
 LLMs possuem limite de contexto.
 
-Por isso textos grandes precisam ser quebrados.
+Por isso arquivos precisam ser quebrados.
 
 ```python
 pedacos = RecursiveCharacterTextSplitter(
     chunk_size=1000,
     chunk_overlap=100
-).split_documents(document.load())
+).split_documents(documentos)
 ```
 
 ---
@@ -154,7 +218,7 @@ chunk_size = 1000
 ```
 
 Define:
-- tamanho máximo de cada trecho
+- tamanho máximo de cada chunk
 
 ---
 
@@ -225,7 +289,7 @@ dados_recuperados = FAISS.from_documents(
 ).as_retriever(search_kwargs={"k":2})
 ```
 
-Fluxo interno:
+Fluxo:
 
 ```text
 Texto
@@ -294,25 +358,39 @@ Texto puro
 
 ```python
 def responder(pergunta:str):
-```
 
-Esse método:
-- busca contexto
-- monta prompt
-- chama LLM
+    trechos = dados_recuperados.invoke(pergunta)
+
+    contexto = "\\n\\n".join(
+        um_trecho.page_content
+        for um_trecho in trechos
+    )
+
+    return cadeia.invoke({
+        "query": pergunta,
+        "contexto": contexto
+    })
+```
 
 ---
 
-# 🔍 Busca semântica
+# 🔍 O que acontece no responder()?
 
-```python
-trechos = dados_recuperados.invoke(pergunta)
+Fluxo interno:
+
+```text
+Pergunta
+   ↓
+Embedding da pergunta
+   ↓
+FAISS busca similaridade
+   ↓
+Recupera trechos relevantes
+   ↓
+Monta contexto
+   ↓
+LLM responde
 ```
-
-O FAISS:
-1. transforma pergunta em embedding
-2. compara significado com vetores salvos
-3. retorna textos semanticamente parecidos
 
 ---
 
@@ -341,53 +419,21 @@ possuem significado parecido.
 
 ---
 
-# 📄 Construindo contexto
+# 🤖 Exemplo utilizando PDFs
 
 ```python
-contexto = "\\n\\n".join(
-    um_trecho.page_content
-    for um_trecho in trechos
+print(
+    responder(
+        "Qual o nome da empresa de gas ? e qual o nome da empresa de energia eletrica ? Quais sao os valores de cada conta ?"
+    )
 )
 ```
 
-Junta:
-- todos os trechos encontrados
-- em uma única string
-
----
-
-# 🤖 Executando cadeia
-
-```python
-return cadeia.invoke({
-    "query": pergunta,
-    "contexto": contexto
-})
-```
-
-Agora a LLM recebe:
-
-```text
-Pergunta + contexto relevante
-```
-
----
-
-# 🔄 Fluxo completo
-
-```text
-Usuário faz pergunta
-        ↓
-Pergunta vira embedding
-        ↓
-FAISS busca similaridade
-        ↓
-Recupera trechos
-        ↓
-Monta contexto
-        ↓
-LLM responde
-```
+O RAG:
+1. busca trechos nos PDFs
+2. monta contexto
+3. envia para LLM
+4. retorna resposta baseada nos documentos
 
 ---
 
@@ -396,9 +442,12 @@ LLM responde
 | Conceito | Objetivo |
 |---|---|
 | Embeddings | Transformar texto em vetores |
-| TextLoader | Ler arquivos |
+| TextLoader | Ler `.txt` |
+| PyPDFLoader | Ler `.pdf` |
 | TextSplitter | Quebrar textos |
+| chunk_overlap | Evitar perda de contexto |
 | FAISS | Banco vetorial |
+| Similaridade semântica | Buscar por significado |
 | Retriever | Buscar contexto |
 | RAG | Buscar + responder |
 
@@ -411,7 +460,7 @@ O RAG NÃO treina a IA.
 Ele:
 - busca contexto relevante
 - injeta informações
-- melhora resposta da LLM
+- melhora respostas da LLM
 
 💡 A inteligência continua no modelo.
 
